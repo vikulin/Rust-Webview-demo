@@ -78,21 +78,6 @@ fn run_interface_loop(interface: &mut WebView<()>) {
 pub enum Cmd {
 }
 
-struct Status {
-    pub mining: bool,
-    pub syncing: bool,
-    pub synced_blocks: u64,
-    pub sync_height: u64,
-    pub nodes_connected: usize,
-    pub chain_height: u64
-}
-
-impl Status {
-    fn new() -> Self {
-        Status { mining: false, syncing: false, synced_blocks: 0, sync_height: 0, nodes_connected: 0, chain_height: 0 }
-    }
-}
-
 fn inline_style(s: &str) -> String {
     format!(r#"<style type="text/css">{}</style>"#, s)
 }
