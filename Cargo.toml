@@ -1,0 +1,54 @@
+[package]
+name = "test_ui"
+version = "0.0.1"
+authors = ["Test <test_ui@test.com>"]
+edition = "2018"
+build = "build.rs"
+readme = "README.md"
+homepage = "https://test_ui.name"
+repository = "https://github.com/Test/Alfis"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+getopts = "0.2.21"
+log = "0.4.14"
+simple_logger = "1.11.0"
+toml = "0.5.8"
+serde = { version = "1.0.123", features = ["derive"] }
+
+systray = "0.4.0"
+#gdk-sys = "0.10.0"
+#gobject-sys ="0.10.0"
+
+# Optional dependencies regulated by features
+#web-view = { version = "0.7.3", features = [], optional = true }
+web-view = { version = "0.6.3", features = [], optional = true }
+tinyfiledialogs = { version = "3.3.10", optional = true }
+
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.7", features = ["impl-default", "wincon", "shellscalingapi"]}
+
+[build-dependencies]
+minreq = { version = "2.3.1", features = ["punycode", "https-rustls"] }
+rust-crypto = "^0.2"
+winres = "0.1"
+
+#[dev-dependencies]
+#serde_bytes = "0.11.5"
+#serde_derive = "1.0.124"
+
+[profile.dev]
+opt-level = 2
+
+[profile.test]
+opt-level = 2
+
+[package.metadata.winres]
+ProductName="Test"
+FileDescription="Test"
+
+[features]
+webgui = ["web-view", "tinyfiledialogs"]
+edge = ["web-view/edge"]
+default = ["webgui"]
