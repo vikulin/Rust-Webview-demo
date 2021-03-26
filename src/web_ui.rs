@@ -18,7 +18,7 @@ pub fn run_interface() {
     let mut styles = inline_style(include_str!("webview/bulma.css"));
     styles.push_str(&inline_style(include_str!("webview/styles.css")));
     styles.push_str(&inline_style(include_str!("webview/busy_indicator.css")));
-    let scripts = inline_script(include_str!("webview/scripts.js"));
+    //let scripts = inline_script(include_str!("webview/scripts.js"));
 
     let html = Content::Html(file_content.to_owned().replace("{styles}", &styles).replace("{scripts}", &scripts));
     let title = format!("TEST {}", env!("CARGO_PKG_VERSION"));
