@@ -38,7 +38,7 @@ fn main() {
             Err(_) => panic!("Can't create window!"),
         }
 	app.set_icon_from_file("webview/desktop.ico");
-	app.add_menu_item("Quit", |window| {
+	app.add_menu_item("Test Quit", |window| {
             Ok::<_, systray::Error>(())
         });
     }
