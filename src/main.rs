@@ -3,15 +3,26 @@
 // See https://msdn.microsoft.com/en-us/library/4cc7ya5b.aspx for more details.
 #![windows_subsystem = "windows"]
 
-use std::env;
+extern crate web_view;
+extern crate tinyfiledialogs as tfd;
+
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+use web_view::Content;
+#[allow(unused_imports)]
+use log::{debug, error, info, LevelFilter, trace, warn};
+use serde::Deserialize;
+
+use Cmd::*;
+use self::web_view::WebView;
+
+use std::env;
 use std::thread;
-use std::time::Duration;
-use std::process;
+//use std::process;
 
 use getopts::Options;
 #[allow(unused_imports)]
-use log::{debug, error, info, LevelFilter, trace, warn};
 use simple_logger::SimpleLogger;
 #[cfg(windows)]
 use winapi::um::wincon::{ATTACH_PARENT_PROCESS, AttachConsole, FreeConsole};
@@ -29,6 +40,30 @@ fn main() -> Result<(), systray_ti::Error> {
         AttachConsole(ATTACH_PARENT_PROCESS);
         winapi::um::shellscalingapi::SetProcessDpiAwareness(2);
     }
+
+    let file_content = include_str!("webview/index.html");
+    let mut styles = inline_style(include_str!("webview/bulma.css"));
+    styles.push_str(&inline_style(include_str!("webview/styles.css")));
+    styles.push_str(&inline_style(include_str!("webview/busy_indicator.css")));
+    //let scripts = inline_script(include_str!("webview/scripts.js"));
+
+    let html = Content::Html(file_content.to_owned().replace("{styles}", &styles));
+    let title = format!("TEST {}", env!("CARGO_PKG_VERSION"));
+    let mut interface = web_view::builder()
+        .title(&title)
+        .content(html)
+        .size(580, 450)
+//        .min_size(420, 380)
+        .resizable(true)
+        .debug(false)
+        .user_data(())
+        .invoke_handler(|web_view, arg| {
+            debug!("Command {}", arg);
+            Ok(())
+        })
+        .build()
+	.unwrap();
+
 
     let mut app;
     match systray_ti::Application::new() {
@@ -95,15 +130,34 @@ fn main() -> Result<(), systray_ti::Error> {
         .unwrap();
     info!(target: LOG_TARGET_MAIN, "Starting DEMO {}", env!("CARGO_PKG_VERSION"));
 
-    #[cfg(feature = "webgui")]
-    web_ui::run_interface();
+//    println!("Waiting on message!");
+//    app.wait_for_message()?;
+    thread::spawn(move || {
+      app.wait_for_message();
+    });
 
-    println!("Waiting on message!");
-    app.wait_for_message();
+    loop {
+        if interface.step().is_none() {
+            break;
+        }
+    }
     // Without explicitly detaching the console cmd won't redraw it's prompt.
     #[cfg(windows)]
     unsafe {
         FreeConsole();
     };
     Ok(())
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "cmd", rename_all = "camelCase")]
+pub enum Cmd {
+}
+
+fn inline_style(s: &str) -> String {
+    format!(r#"<style type="text/css">{}</style>"#, s)
+}
+
+fn inline_script(s: &str) -> String {
+    format!(r#"<script type="text/javascript">{}</script>"#, s)
 }
