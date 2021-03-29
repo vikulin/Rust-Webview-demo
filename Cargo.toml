@@ -16,13 +16,13 @@ simple_logger = "1.11.0"
 toml = "0.5.8"
 serde = { version = "1.0.123", features = ["derive"] }
 
-systray = "0.4.0"
-#gdk-sys = "0.10.0"
-#gobject-sys ="0.10.0"
+systray-ti = "0.4.1"
+gdk-sys = "0.10.0"
+gobject-sys ="0.10.0"
 
 # Optional dependencies regulated by features
-#web-view = { version = "0.7.3", features = [], optional = true }
-web-view = { version = "0.6.3", features = [], optional = true }
+web-view = { version = "0.7.3", features = [], optional = true }
+#web-view = { version = "0.6.3", features = [], optional = true }
 tinyfiledialogs = { version = "3.3.10", optional = true }
 
 

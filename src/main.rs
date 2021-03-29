@@ -24,18 +24,7 @@ mod web_ui;
 
 fn main() {
 
-    let mut app;
-    match systray::Application::new() {
-        Ok(w) => app = w,
-        Err(_) => panic!("Can't create window!"),
-    }
-    
-    app.set_icon_from_file("webview/desktop.ico");
-    
-    app.add_menu_item("Quit", |window| {
-        
-        Ok::<_, systray::Error>(())
-    });
+
 
     // When linked with the windows subsystem windows won't automatically attach
     // to the console of the parent process, so we do it explicitly. This fails silently if the parent has no console.
@@ -43,6 +32,15 @@ fn main() {
     unsafe {
         AttachConsole(ATTACH_PARENT_PROCESS);
         winapi::um::shellscalingapi::SetProcessDpiAwareness(2);
+        let mut app;
+        match systray::Application::new() {
+	    Ok(w) => app = w,
+            Err(_) => panic!("Can't create window!"),
+        }
+	app.set_icon_from_file("webview/desktop.ico");
+	app.add_menu_item("Quit", |window| {
+            Ok::<_, systray::Error>(())
+        });
     }
 
     let args: Vec<String> = env::args().collect();
