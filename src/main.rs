@@ -33,13 +33,13 @@ fn main() {
         AttachConsole(ATTACH_PARENT_PROCESS);
         winapi::um::shellscalingapi::SetProcessDpiAwareness(2);
         let mut app;
-        match systray::Application::new() {
+        match systray_ti::Application::new() {
 	    Ok(w) => app = w,
             Err(_) => panic!("Can't create window!"),
         }
 	app.set_icon_from_file("webview/desktop.ico");
 	app.add_menu_item("Test Quit", |window| {
-            Ok::<_, systray::Error>(())
+            Ok::<_, systray_ti::Error>(())
         });
     }
 
