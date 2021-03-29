@@ -19,7 +19,7 @@ use self::web_view::WebView;
 
 use std::env;
 use std::thread;
-//use std::process;
+use std::process;
 
 use getopts::Options;
 #[allow(unused_imports)]
@@ -89,6 +89,7 @@ fn main() -> Result<(), systray_ti::Error> {
 
     app.add_menu_item("Quit", |window| {
         window.quit();
+	process::exit(0x0100);
         Ok::<_, systray_ti::Error>(())
     });
 
