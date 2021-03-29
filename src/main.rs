@@ -22,26 +22,43 @@ const LOG_TARGET_MAIN: &str = "test_ui::Main";
 #[cfg(feature = "webgui")]
 mod web_ui;
 
-fn main() {
+fn main() -> Result<(), systray_ti::Error> {
 
-
-
-    // When linked with the windows subsystem windows won't automatically attach
-    // to the console of the parent process, so we do it explicitly. This fails silently if the parent has no console.
     #[cfg(windows)]
     unsafe {
         AttachConsole(ATTACH_PARENT_PROCESS);
         winapi::um::shellscalingapi::SetProcessDpiAwareness(2);
-        let mut app;
-        match systray_ti::Application::new() {
-	    Ok(w) => app = w,
-            Err(_) => panic!("Can't create window!"),
-        }
-	app.set_icon_from_file("webview/desktop.ico");
-	app.add_menu_item("Test Quit", |window| {
+    }
+
+    let mut app;
+    match systray_ti::Application::new() {
+        Ok(w) => app = w,
+        Err(_) => panic!("Can't create window!"),
+    }
+    app.set_icon_from_file("webview/desktop.ico");
+    app.add_menu_item("Print a thing", |_| {
+        println!("Printing a thing!");
+        Ok::<_, systray_ti::Error>(())
+    });
+
+    app.add_menu_item("Add Menu Item", |window| {
+        window.add_menu_item("Interior item", |_| {
+            println!("what");
             Ok::<_, systray_ti::Error>(())
         });
-    }
+        window.add_menu_separator();
+        Ok::<_, systray_ti::Error>(())
+    });
+
+    app.add_menu_separator();
+
+    app.add_menu_item("Quit", |window| {
+        window.quit();
+        Ok::<_, systray_ti::Error>(())
+    });
+
+    // When linked with the windows subsystem windows won't automatically attach
+    // to the console of the parent process, so we do it explicitly. This fails silently if the parent has no console.
 
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
@@ -62,8 +79,7 @@ fn main() {
     if opt_matches.opt_present("h") {
         let brief = format!("Usage: {} [options]", program);
         print!("{}", opts.usage(&brief));
-        return;
-    }
+    };
 
     let mut level = LevelFilter::Info;
     if opt_matches.opt_present("v") {
@@ -82,9 +98,12 @@ fn main() {
     #[cfg(feature = "webgui")]
     web_ui::run_interface();
 
+    println!("Waiting on message!");
+    app.wait_for_message();
     // Without explicitly detaching the console cmd won't redraw it's prompt.
     #[cfg(windows)]
     unsafe {
         FreeConsole();
-    }
+    };
+    Ok(())
 }
