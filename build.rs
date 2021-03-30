@@ -3,8 +3,7 @@ extern crate winres;
 fn main() {
     if cfg!(target_os = "windows") {
         let mut res = winres::WindowsResource::new();
-        //res.set_icon("./webview/desktop.ico");
+//        res.set_icon("desktop.ico");
         res.compile().unwrap();
     }
-
 }
