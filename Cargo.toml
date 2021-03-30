@@ -1,5 +1,5 @@
 [package]
-name = "test_ui"
+name = "webviewdemo"
 version = "0.0.1"
 authors = ["Test <test_ui@test.com>"]
 edition = "2018"
@@ -15,6 +15,7 @@ log = "0.4.14"
 simple_logger = "1.11.0"
 toml = "0.5.8"
 serde = { version = "1.0.123", features = ["derive"] }
+serde_json = "1.0.64"
 
 systray-ti = "0.4.1"
 gdk-sys = "0.10.0"

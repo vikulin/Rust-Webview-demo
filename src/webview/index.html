@@ -1531,8 +1531,9 @@ span {
 /*# sourceMappingURL=bulma.css.map */
     </style>
     <script>
-    
-
+function signIn() {
+    external.invoke(JSON.stringify({cmd: 'signIn'}));
+}
     </script>
 </head>
 <body>
@@ -1571,7 +1572,7 @@ span {
         
         <div class="field is-grouped">
             <div class="control is-expanded has-icons-left">
-                <input class="input is-expanded" type="text" placeholder="Email" id="new_domain" oninput="onDomainChange(this)">
+                <input class="input is-expanded" type="text" placeholder="Email" id="new_domain" oninput="onUsername(this)">
                 <span class="icon is-small is-left">
                     <i class="fas fa-globe"></i>
                 </span>
@@ -1580,7 +1581,7 @@ span {
 		
 	<div class="field is-grouped">
             <div class="control is-expanded has-icons-left">
-                <input class="input is-expanded" type="password" placeholder="Password" id="new_domain" oninput="onDomainChange(this)">
+                <input class="input is-expanded" type="password" placeholder="Password" id="new_domain" oninput="onPassword(this)">
                 <span class="icon is-small is-left">
                     <i class="fas fa-lock"></i>
                 </span>
@@ -1590,7 +1591,7 @@ span {
     </div>
 	
         <div class="buttons is-expanded">
-                <button id="new_domain_button" class="button is-info">Sign in</button>
+                <button id="new_domain_button" class="button is-info" onclick="signIn();">Sign in</button>
         </div>
 
 

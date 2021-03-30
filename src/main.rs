@@ -5,6 +5,8 @@
 
 extern crate web_view;
 extern crate tinyfiledialogs as tfd;
+extern crate serde;
+extern crate serde_json;
 
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -33,6 +35,16 @@ const LOG_TARGET_MAIN: &str = "test_ui::Main";
 #[cfg(feature = "webgui")]
 mod web_ui;
 
+pub struct Context {
+}
+
+impl Context {
+    /// Creating an essential context to work with
+    pub fn new() -> Context {
+        Context {  }
+    }
+}
+
 fn main() -> Result<(), systray_ti::Error> {
 
     #[cfg(windows)]
@@ -42,22 +54,28 @@ fn main() -> Result<(), systray_ti::Error> {
     }
 
     let file_content = include_str!("webview/index.html");
-    let mut styles = inline_style(include_str!("webview/bulma.css"));
-    styles.push_str(&inline_style(include_str!("webview/styles.css")));
-    styles.push_str(&inline_style(include_str!("webview/busy_indicator.css")));
-    //let scripts = inline_script(include_str!("webview/scripts.js"));
+//    let mut styles = inline_style(include_str!("webview/bulma.css"));
+//    styles.push_str(&inline_style(include_str!("webview/styles.css")));
+//    styles.push_str(&inline_style(include_str!("webview/busy_indicator.css")));
+//    let scripts = inline_script(include_str!("webview/scripts.js"));
 
-    let html = Content::Html(file_content.to_owned().replace("{styles}", &styles));
+    let html = Content::Html(file_content);
     let title = format!("TEST {}", env!("CARGO_PKG_VERSION"));
+    let context = Context::new();
+    let context: Arc<Mutex<Context>> = Arc::new(Mutex::new(context));
+
     let mut interface = web_view::builder()
         .title(&title)
         .content(html)
-        .size(580, 450)
-//        .min_size(420, 380)
+        .size(550, 500)
+        .min_size(420, 380)
         .resizable(true)
         .debug(false)
         .user_data(())
         .invoke_handler(|web_view, arg| {
+            match serde_json::from_str(arg).unwrap() {
+                SignIn => { sign_in(&context, web_view); }
+            }
             debug!("Command {}", arg);
             Ok(())
         })
@@ -129,17 +147,33 @@ fn main() -> Result<(), systray_ti::Error> {
         .with_module_level("mio::poll", LevelFilter::Warn)
         .init()
         .unwrap();
-    info!(target: LOG_TARGET_MAIN, "Starting DEMO {}", env!("CARGO_PKG_VERSION"));
 
-//    println!("Waiting on message!");
-//    app.wait_for_message()?;
     thread::spawn(move || {
       app.wait_for_message();
     });
 
+    let pause = Duration::from_millis(25);
+    let mut start = Instant::now();
     loop {
-        if interface.step().is_none() {
-            break;
+        match interface.step() {
+            None => {
+                info!("Interface closed, exiting");
+                thread::sleep(Duration::from_millis(100));
+                break;
+            }
+            Some(result) => {
+                match result {
+                    Ok(_) => {}
+                    Err(_) => {
+                        error!("Something wrong with webview, exiting");
+                        break;
+                    }
+                }
+            }
+        }
+        if start.elapsed().as_millis() > 1 {
+            thread::sleep(pause);
+            start = Instant::now();
         }
     }
     // Without explicitly detaching the console cmd won't redraw it's prompt.
@@ -153,6 +187,11 @@ fn main() -> Result<(), systray_ti::Error> {
 #[derive(Deserialize)]
 #[serde(tag = "cmd", rename_all = "camelCase")]
 pub enum Cmd {
+    SignIn
+}
+
+fn sign_in(context: &Arc<Mutex<Context>>, web_view: &mut WebView<()>) {
+    info!("Clicked Sign In button");
 }
 
 fn inline_style(s: &str) -> String {
