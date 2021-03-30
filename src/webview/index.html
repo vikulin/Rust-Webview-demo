@@ -1534,6 +1534,10 @@ span {
 function signIn() {
     external.invoke(JSON.stringify({cmd: 'signIn'}));
 }
+
+function show_label(){
+    document.getElementById("label").innerHTML = "Sign In button event received";
+}
     </script>
 </head>
 <body>
@@ -1592,6 +1596,7 @@ function signIn() {
 	
         <div class="buttons is-expanded">
                 <button id="new_domain_button" class="button is-info" onclick="signIn();">Sign in</button>
+		<label id="label"/>
         </div>
 
 

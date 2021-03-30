@@ -192,6 +192,7 @@ pub enum Cmd {
 
 fn sign_in(context: &Arc<Mutex<Context>>, web_view: &mut WebView<()>) {
     info!("Clicked Sign In button");
+    web_view.eval("show_label();");
 }
 
 fn inline_style(s: &str) -> String {
